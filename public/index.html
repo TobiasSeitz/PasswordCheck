@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="NOINDEX,NOFOLLOW">
     <title>Password Check</title>
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="stylesheet" href="stylesheets/style.css">
+
+    <link rel="import" href="elements.html">
+    <style is="custom-style" include="shared-styles"></style>
 </head>
 <body>
-
+<script type="text/javascript">
+    window.addEventListener('WebComponentsReady', function (e){
+        console.log('WebComponentsReady, app is ready to load');
+        document.getElementsByTagName('body')[0].appendChild(document.createElement('password-check'));
+    })
+</script>
 </body>
 </html>

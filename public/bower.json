@@ -1,0 +1,21 @@
+{
+  "name": "PasswordCheck Front End",
+  "version": "0.0.0",
+  "homepage": "https://github.com/TobiasSeitz/PasswordCheck",
+  "authors": [
+    "Tobias Seitz <tobi tobitobi.de>"
+  ],
+  "description": "The front end code for the PasswordCheck project that allows users to have their password checked",
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#~1.2.3"
+  }
+}
