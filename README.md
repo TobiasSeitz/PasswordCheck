@@ -14,6 +14,6 @@ tba.
 I synthesized the German dictionary "igerman98" by Björn Jacke into a JSON array that can be used to extend 
   the dictionary that comes with zxcvbn. Find his incredible dictionary here: https://www.j3e.de/ispell/igerman98/ 
 
-### Libraries
-- NodeJS generator
-- 
+### Libraries ###
+NodeJS generator
+ 
