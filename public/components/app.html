@@ -1,14 +1,70 @@
 <link rel="import"
       href="../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
 <dom-module id="password-check">
+    <style>
+        :host{
+            margin:0;padding:0;
+        }
+        footer{
+            text-align: center;
+        }
+    </style>
     <template>
+        <style include="app-theme"></style>
         <style include="shared-styles"></style>
-        <h2 class="page-title">Hellow!</h2>
+        <paper-toolbar id="mainToolbar" class="tall">
+            <span class="flex"></span>
+
+            <!-- Application name -->
+            <div class="middle middle-container center horizontal layout">
+                <div class="app-name">Password Check</div>
+            </div>
+
+            <!-- Application sub title -->
+            <div class="bottom bottom-container center horizontal layout">
+                <div class="bottom-title paper-font-subhead">Find out how good your password really is.</div>
+            </div>
+        </paper-toolbar>
+        <paper-material elevation="1">
+            <form is="iron-form" id="passwordForm" on-iron-form-submit="_checkPassword">
+                <paper-input value="{{password}}" type="password" label="Type a Password Here"></paper-input>
+                <paper-button on-tap="_checkPassword">Check</paper-button>
+                <paper-button>Donate</paper-button>
+            </form>
+        </paper-material>
+        <paper-material elevation="1">
+            <h3>Result</h3>
+            <div>Score: {{result.score}}</div>
+            <div>Time needed if an attacker can try at most 100 times an hour: {{result.crack_times_display.online_throttling_100_per_hour}}</div>
+            <div>NSA: {{result.crack_times_display.offline_fast_hashing_1e10_per_second}}</div>
+        </paper-material>
+        <footer>
+            Tobias Seitz &copy; 2015
+        </footer>
     </template>
+    <script async src="../bower_components/zxcvbn/dist/zxcvbn.js"></script>
     <script>
         Polymer({
-            is: 'password-check'
+            is: 'password-check',
+            properties : {
+                password : String,
+                result : Object
+            },
+            ready : function(){
+
+            },
+            _checkPassword : function(){
+                if(zxcvbn){
+                    this.result = zxcvbn(this.password);
+                    console.log(this.result);
+                }
+            }
         })
     </script>
 </dom-module>
