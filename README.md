@@ -4,19 +4,19 @@ The PasswordCheck is a full-stack web-app that allows users to analyze the stren
 It also allows storing the results into a Mongo database (stripped from all sensitive information) to conduct
 analyses. 
 
-The app uses NEMP Stack: NodeJS, Express, MongoDB, Polymer.
+The app uses a NEMP Stack: NodeJS, Express, MongoDB, Polymer.
 
-## Set up ##
+## Setup ##
 
 ### Requirements ###
 Make sure you have the following installed and up and running on your machine:
 
 - [NodeJS](https://nodejs.org/)
 - [MongoDB](https://www.mongodb.org/)
-- Bower: `$ npm install -g bower`
+- [Bower](http://bower.io/): `$ npm install -g bower`
 
 
-### Steps ###
+### Installation ###
 1. Install the required node packages: `$ npm install` from the project root.
 2. Install the UI dependencies (web compontents): `$ cd public && bower install`
 
@@ -25,8 +25,11 @@ Make sure you have the following installed and up and running on your machine:
 $ npm run start
 ```
 
+Then visit [http://localhost:3000](http://localhost:3000)
+
 ### Optional Environment Variables ###
-- `MONGO_URL`: specify the database to connect to. Default `localhost/PasswordCheck`. 
+- `MONGO_URL`: specify the database to connect to. Default `localhost/PasswordCheck`.
+- `PORT`: specify the app's port. Default 3000.
  
 
 ## Credits ##
