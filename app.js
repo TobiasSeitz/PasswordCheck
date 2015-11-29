@@ -25,6 +25,7 @@ app.use(require('less-middleware')(path.join(__dirname, 'public')));
 
 // actual routes.
 app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/dictionary', express.static(path.join(__dirname, 'dictionary')));
 app.use('/insertDonatedPassword',insertDonatedPassword);
 
 

@@ -2,66 +2,224 @@
       href="../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
 <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../stylesheets/app-theme.html">
 
 <dom-module id="password-check">
-    <style>
-        :host{
-            margin:0;padding:0;
-        }
-        footer{
-            text-align: center;
-        }
-    </style>
     <template>
         <style include="app-theme"></style>
         <style include="shared-styles"></style>
-        <paper-toolbar id="mainToolbar" class="tall">
-            <span class="flex"></span>
+        <style>
+            :host {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+            }
 
-            <!-- Application name -->
-            <div class="middle middle-container center horizontal layout">
-                <div class="app-name">Password Check</div>
-            </div>
+            section {
+                margin: 2em;
+            }
 
-            <!-- Application sub title -->
-            <div class="bottom bottom-container center horizontal layout">
-                <div class="bottom-title paper-font-subhead">Find out how good your password really is.</div>
+            footer {
+                text-align: center;
+                margin: 1em 0;
+            }
+
+            *[hidden] {
+                display: none;
+            }
+
+            paper-scroll-header-panel {
+                height: 100%;
+            }
+
+            paper-button[raised] {
+                background-color: var(--default-primary-color);
+                color: var(--text-primary-color);
+            }
+
+            paper-button:first-of-type {
+                margin-left: 0;
+            }
+
+            paper-input {
+                margin: 2em 0;
+            }
+
+            .highlight.result {
+                color: var(--accent-color);
+                font-weight: bold;
+            }
+
+            .details{
+                color: var(--secondary-text-color);
+            }
+            .detail {
+                margin: 1em 0;
+            }
+
+        </style>
+        <paper-scroll-header-panel condenses keep-condensed-header>
+            <paper-toolbar class="tall">
+                <span class="flex"></span>
+                <!-- Application name -->
+                <div class="middle middle-container center horizontal layout">
+                    <div class="app-name">Password Check</div>
+                </div>
+                <!-- Application sub title -->
+                <div class="bottom bottom-container center horizontal layout">
+                    <div class="bottom-title paper-font-subhead">Find out how good your password really is.</div>
+                </div>
+            </paper-toolbar>
+            <div content>
+                <section>
+                    <paper-material elevation="1">
+                        <form is="iron-form" id="passwordForm" on-iron-form-submit="_checkPassword">
+                            <paper-input value="{{password}}" type="password"
+                                         label="Type a Password Here"></paper-input>
+                            <paper-button on-tap="_checkPassword" raised>Check</paper-button>
+                            <paper-button on-tap="_donatePassword">Donate</paper-button>
+                        </form>
+                    </paper-material>
+                </section>
+                <section hidden$="{{resultUnavailable(result)}}">
+                    <paper-material elevation="1">
+                        <h3>Result:
+                            <span class="warning highlight result"
+                                  hidden$="{{!result.feedback.warning}}">{{result.feedback.warning}}</span>
+                        </h3>
+
+                        <div>Summary: <p class="highlight result">{{getScoreDisplay(result.score)}}</p>
+                        </div>
+                        <div>We approximately need
+                            <span class="highlight result">{{formatNumber(result.guesses)}}</span> guesses to find out
+                            this
+                            password.
+                        </div>
+
+
+                        <div class="feedback">
+                            <h4 hidden$="{{!result.feedback.suggestions.length}}">Suggestions:</h4>
+                            <ul hidden$="{{!result.feedback.suggestions}}">
+                                <template is="dom-repeat" items="{{result.feedback.suggestions}}">
+                                    <li class="suggestion">{{item}}</li>
+                                </template>
+                            </ul>
+                        </div>
+
+                        <div class="details">
+                            <h4>
+                                Details:
+                            </h4>
+
+                            <div class="detail">
+                                If an attacker is able to try and guess this password 100 times per hour, it would not take them
+                                <span class="highlight result">{{result.crack_times_display.online_throttling_100_per_hour}}</span>
+                                to crack it.
+                            </div>
+                            <div class="detail">
+                                So let's say your attackers have a couple of computers and they now can try 10 times per
+                                second.
+                                Then it would take them
+                                <span class="highlight result">{{result.crack_times_display.online_no_throttling_10_per_second}}</span>
+                                until they've found out this password.
+                            </div>
+                            <div class="detail">
+                                <p>
+                                    Sometimes, attackers can download entire databases that contain encrypted passwords,
+                                    so they can try a lot more often because the attempts are only limited by their
+                                    time.</p>
+
+                                <p>
+                                    In such a case, a strong password can really help. But the people responsible
+                                    for storing your password into the database also need to do their job.
+                                    If they use a rather weak encryption, the attackers might have your password in
+                                    <span class="highlight result">{{result.crack_times_display.offline_fast_hashing_1e10_per_second}}</span>
+                                </p>
+
+                                <p>
+                                    If those people used a strong encryption, it will take the attackers a little
+                                    longer.
+                                    A rough estimate would be:
+                                    <span class="highlight result">{{result.crack_times_display.offline_slow_hashing_1e4_per_second}}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                    </paper-material>
+                </section>
+                <footer>
+                    Tobias Seitz &copy; 2015
+                </footer>
             </div>
-        </paper-toolbar>
-        <paper-material elevation="1">
-            <form is="iron-form" id="passwordForm" on-iron-form-submit="_checkPassword">
-                <paper-input value="{{password}}" type="password" label="Type a Password Here"></paper-input>
-                <paper-button on-tap="_checkPassword">Check</paper-button>
-                <paper-button>Donate</paper-button>
-            </form>
-        </paper-material>
-        <paper-material elevation="1">
-            <h3>Result</h3>
-            <div>Score: {{result.score}}</div>
-            <div>Time needed if an attacker can try at most 100 times an hour: {{result.crack_times_display.online_throttling_100_per_hour}}</div>
-            <div>NSA: {{result.crack_times_display.offline_fast_hashing_1e10_per_second}}</div>
-        </paper-material>
-        <footer>
-            Tobias Seitz &copy; 2015
-        </footer>
+        </paper-scroll-header-panel>
+        <iron-ajax url="/dictionary/german.json" last-response="{{germanDictionary}}" auto></iron-ajax>
+
     </template>
     <script async src="../bower_components/zxcvbn/dist/zxcvbn.js"></script>
     <script>
         Polymer({
             is: 'password-check',
-            properties : {
-                password : String,
-                result : Object
+            properties: {
+                password: String,
+                result: {
+                    type: Object,
+                    value: {}
+                }
             },
-            ready : function(){
+            resultUnavailable: function (result) {
+                return typeof result == 'undefined' || typeof result.score == 'undefined';
+            },
+            formatNumber: function (number) {
+                if (!number)return '';
+                // from http://stackoverflow.com/a/5776881/1447479
+                number = number.toFixed(2) + '';
+                var x = number.split('.');
+                var x1 = x[0];
+                var x2 = x.length > 1 ? '.' + x[1] : '';
+                var rgx = /(\d+)(\d{3})/;
+                var compoundParts;
+                while (rgx.test(x1)) {
+                    x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                }
+                compoundParts = x1 + x2;
+                return compoundParts;
+            },
+            getScoreDisplay: function (score) {
+                var text;
+                switch (score) {
+                    case 0:
+                        text = 'Risky password. Too easy to guess. Doesn\'t really protect you. ';
+                        break;
+                    case 1:
+                        text = 'Very guessable. Protects you only if the attacker is locked out after wrong guesses.';
+                        break;
+                    case 2:
+                        text = 'Somewhat guessable. Protects you from teenagers and lazy attackers.';
+                        break;
+                    case 3:
+                        text = 'Pretty unguessable. Protects you from most cracking attacks.';
+                        break;
+                    case 4:
+                        text = 'Very strong. Even the NSA would need a lot of time to crack this password.';
+                        break;
+                }
+                return text;
+            },
+            keys: function (obj) {
+                return Object.keys(obj);
+            },
+            ready: function () {
 
             },
-            _checkPassword : function(){
-                if(zxcvbn){
-                    this.result = zxcvbn(this.password);
+            _checkPassword: function () {
+                if (zxcvbn) {
+                    this.result = zxcvbn(this.password,this.germanDictionary);
                     console.log(this.result);
                 }
             }
