@@ -1,6 +1,35 @@
 <dom-module id="shared-styles">
     <template>
         <style>
+
+
+            paper-scroll-header-panel {
+                height: 100%;
+            }
+
+            paper-button[raised] {
+                background-color: var(--default-primary-color);
+                color: var(--text-primary-color);
+            }
+
+            paper-button:first-of-type {
+                margin-left: 0;
+            }
+
+            paper-input {
+                margin: 2em 0;
+            }
+            section {
+                margin: 2em;
+            }
+
+            footer {
+                text-align: center;
+                margin: 1em 0;
+            }
+            .spacer {
+                @apply(--layout-flex);
+            }
             .page-title {
                 @apply(--paper-font-display2);
             }

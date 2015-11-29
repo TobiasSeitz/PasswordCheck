@@ -1,12 +1,17 @@
 <link rel="import"
       href="../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
 <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../stylesheets/app-theme.html">
 
 <dom-module id="password-check">
@@ -21,36 +26,6 @@
                 width: 100%;
             }
 
-            section {
-                margin: 2em;
-            }
-
-            footer {
-                text-align: center;
-                margin: 1em 0;
-            }
-
-            *[hidden] {
-                display: none;
-            }
-
-            paper-scroll-header-panel {
-                height: 100%;
-            }
-
-            paper-button[raised] {
-                background-color: var(--default-primary-color);
-                color: var(--text-primary-color);
-            }
-
-            paper-button:first-of-type {
-                margin-left: 0;
-            }
-
-            paper-input {
-                margin: 2em 0;
-            }
-
             .highlight.result {
                 color: var(--accent-color);
                 font-weight: bold;
@@ -63,17 +38,35 @@
                 margin: 1em 0;
             }
 
+            .donateContainer{
+                color: var(--secondary-text-color);
+                margin: 2em 0;
+            }
+            .donateButton{
+                background-color: var(--accent-color);
+                color: var(--text-primary-color);
+                float:left;
+                margin-right: 1em;
+            }
+
         </style>
         <paper-scroll-header-panel condenses keep-condensed-header>
+            <paper-toast id="notification" duration="10000"></paper-toast>
             <paper-toolbar class="tall">
-                <span class="flex"></span>
+                <span class="spacer"></span>
+                <div class="top layout horizontal">
+                    <span class="spacer"></span>
+                    <paper-icon-button icon="refresh" on-tap="refresh" class="reload"></paper-icon-button>
+                </div>
                 <!-- Application name -->
                 <div class="middle middle-container center horizontal layout">
-                    <div class="app-name">Password Check</div>
+                    Find out how strong your password really is.
                 </div>
                 <!-- Application sub title -->
                 <div class="bottom bottom-container center horizontal layout">
-                    <div class="bottom-title paper-font-subhead">Find out how good your password really is.</div>
+                    <div class="app-name">Password Check</div>
+                    <span class="flex"></span>
+
                 </div>
             </paper-toolbar>
             <div content>
@@ -83,7 +76,6 @@
                             <paper-input value="{{password}}" type="password"
                                          label="Type a Password Here"></paper-input>
                             <paper-button on-tap="_checkPassword" raised>Check</paper-button>
-                            <paper-button on-tap="_donatePassword">Donate</paper-button>
                         </form>
                     </paper-material>
                 </section>
@@ -94,15 +86,12 @@
                                   hidden$="{{!result.feedback.warning}}">{{result.feedback.warning}}</span>
                         </h3>
 
-                        <div>Summary: <p class="highlight result">{{getScoreDisplay(result.score)}}</p>
-                        </div>
+                        <div class="highlight result">{{getScoreDisplay(result.score)}}</div>
                         <div>We approximately need
                             <span class="highlight result">{{formatNumber(result.guesses)}}</span> guesses to find out
                             this
                             password.
                         </div>
-
-
                         <div class="feedback">
                             <h4 hidden$="{{!result.feedback.suggestions.length}}">Suggestions:</h4>
                             <ul hidden$="{{!result.feedback.suggestions}}">
@@ -111,19 +100,27 @@
                                 </template>
                             </ul>
                         </div>
-
+                        <div class="donateContainer">
+                            <paper-button on-tap="_donateResult" class="donateButton">Donate this Result</paper-button>
+                            <p>We <strong>don't save</strong> your password, but we would like to
+                                create statistics about the test results.</p>
+                        </div>
+                    </paper-material>
+                </section>
+                <section hidden$="{{resultUnavailable(result)}}">
+                    <paper-material elevation="1">
                         <div class="details">
                             <h4>
                                 Details:
                             </h4>
 
                             <div class="detail">
-                                If an attacker is able to try and guess this password 100 times per hour, it would not take them
+                                If an attacker is able to try and guess this password 100 times per hour, it would take them
                                 <span class="highlight result">{{result.crack_times_display.online_throttling_100_per_hour}}</span>
                                 to crack it.
                             </div>
                             <div class="detail">
-                                So let's say your attackers have a couple of computers and they now can try 10 times per
+                                Let's say your attackers have a couple of computers and they now can try 10 times per
                                 second.
                                 Then it would take them
                                 <span class="highlight result">{{result.crack_times_display.online_no_throttling_10_per_second}}</span>
@@ -131,10 +128,10 @@
                             </div>
                             <div class="detail">
                                 <p>
-                                    Sometimes, attackers can download entire databases that contain encrypted passwords,
-                                    so they can try a lot more often because the attempts are only limited by their
-                                    time.</p>
-
+                                    Sometimes attackers gain access to entire databases that contain encrypted passwords.
+                                    Now the bad guys can try a lot more often because the attempts are only limited by their
+                                    own time and resources.
+                                </p>
                                 <p>
                                     In such a case, a strong password can really help. But the people responsible
                                     for storing your password into the database also need to do their job.
@@ -150,21 +147,33 @@
                                 </p>
                             </div>
                         </div>
-
                     </paper-material>
                 </section>
                 <footer>
-                    Tobias Seitz &copy; 2015
+                    Tobias Seitz &copy; 2015 - PasswordCheck is open-source.
+                    Find its source code on
+                    <a href="https://github.com/TobiasSeitz/PasswordCheck" target="_blank">GitHub</a>.
                 </footer>
             </div>
         </paper-scroll-header-panel>
         <iron-ajax url="/dictionary/german.json" last-response="{{germanDictionary}}" auto></iron-ajax>
-
+        <iron-ajax id="donator"
+                   method="post"
+                   url="/insertDonatedPassword"
+                   handle-as="json"
+                   content-type="application/json"
+                   on-response="handleDonationResponse"
+                   loading="{{donationLoading}}"
+        ></iron-ajax>
     </template>
     <script async src="../bower_components/zxcvbn/dist/zxcvbn.js"></script>
+    <script async src="../javascripts/anonymizeResult.js"></script>
     <script>
         Polymer({
             is: 'password-check',
+            // this module exposes two public properties
+            // the currently entered password, so you could pre-initialize it
+            // and the analysis result (zxcvbn)
             properties: {
                 password: String,
                 result: {
@@ -172,9 +181,22 @@
                     value: {}
                 }
             },
+            /**
+             * We only want to display the result and details sections
+             * if there actually is a result.
+             * this is a property calculator, use it like this
+             * hidden$="{{resultUnavailable(result)}}"
+             * @param result Object
+             */
             resultUnavailable: function (result) {
                 return typeof result == 'undefined' || typeof result.score == 'undefined';
             },
+            /**
+             * inserts separators (comma) into a number
+             * @number Number to be formatted
+             * @returns String representation of the number
+             *
+             */
             formatNumber: function (number) {
                 if (!number)return '';
                 // from http://stackoverflow.com/a/5776881/1447479
@@ -190,14 +212,22 @@
                 compoundParts = x1 + x2;
                 return compoundParts;
             },
-            getScoreDisplay: function (score) {
+
+            /**
+             * The user does not necessarily know how to
+             * interpret the score 0-4.
+             * Therefore we provide a description for the provided score
+             * @param score Number the password's score on a scale from 0 (weakest) to 4 (strongest)
+             * @returns String representation of the score (description)
+             */
+            getScoreDisplay: function(score) {
                 var text;
                 switch (score) {
                     case 0:
                         text = 'Risky password. Too easy to guess. Doesn\'t really protect you. ';
                         break;
                     case 1:
-                        text = 'Very guessable. Protects you only if the attacker is locked out after wrong guesses.';
+                        text = 'Very guessable. Protects you only if the attacker is blocked after incorrect guesses.';
                         break;
                     case 2:
                         text = 'Somewhat guessable. Protects you from teenagers and lazy attackers.';
@@ -211,17 +241,65 @@
                 }
                 return text;
             },
-            keys: function (obj) {
-                return Object.keys(obj);
-            },
-            ready: function () {
 
+            /**
+             * destroys all calculations.
+             * this also causes a UI update.
+             * requires ECMAScript!
+             */
+            refresh : function(){
+                this.password = undefined;
+                this.result = undefined;
             },
+
+            /**
+             * Core function.
+             * performs the call to the zxcvbn library and stores the result
+             * in this.result.
+             *
+             */
             _checkPassword: function () {
-                if (zxcvbn) {
+                var toast;
+                // we load zxcvbn asynchronously, so we unfortunately need to make sure that is there.
+                if (typeof zxcvbn != 'undefined') {
+                    // we provide a german dictionary since we deploy and demonstrate the tool in Germany.
                     this.result = zxcvbn(this.password,this.germanDictionary);
-                    console.log(this.result);
                 }
+                // the zxcvbn library is not loaded
+                // inform the user.
+                else{
+                    toast = this.$.notification;
+                    toast.text = 'Sorry, the analyzer is taking a coffee break.';
+                    toast.duration = 5000;
+                    toast.show();
+                }
+            },
+            /**
+             * event handler that triggers the #donator iron-ajax request.
+             * the current result is anonymized and stripped of sensitive information
+             * and sent via POST.
+             * @private
+             */
+            _donateResult : function(){
+                var worker = this.$.donator;
+                var anonResult;
+                if(worker && !this.resultUnavailable(this.result)){
+                    anonResult = anonymizeResult(this.result);
+                    worker.body = {
+                        data : anonResult
+                    };
+                    worker.generateRequest();
+                }
+            },
+            /**
+             * event handler when we receive a server response after inserting the analysis result.
+             * @param event Polymer event (expected: iron-form-response)
+             */
+            handleDonationResponse : function(event){
+                var toast = this.$.notification;
+                toast.text = 'Thanks a lot! Your donation really helps us to improve password security!';
+                toast.duration = 8000;
+                toast.show();
             }
         })
     </script>

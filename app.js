@@ -14,6 +14,7 @@ var app = express();
 
 // to define the url of the mongodb server, use an environment valriable called MONGO_URL
 mongoose.connect(process.env.MONGO_URL || 'localhost/PasswordCheck');
+console.log("Mongo URL: "+ (process.env.MONGO_URL || 'localhost/PasswordCheck'));
 
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -21,10 +22,11 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(require('less-middleware')(path.join(__dirname, 'public')));
+//app.use(require('less-middleware')(path.join(__dirname, 'public')));
 
 // actual routes.
 app.use('/', express.static(path.join(__dirname, 'public')));
+// serve the dictionary separately.
 app.use('/dictionary', express.static(path.join(__dirname, 'dictionary')));
 app.use('/insertDonatedPassword',insertDonatedPassword);
 
